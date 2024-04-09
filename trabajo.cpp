@@ -13,10 +13,26 @@ Pieza* piezas_tablero; // Lista de piezas que tiene el tablero
 };
 
 bool tableroEnJaqueMate(Tablero &tablero){ //es para determinar si esta en jaque mate
+	for (int i=0; i<8; ++i){
+		for(int j=0; j<8; ++j){
+			if(tablero.piezas_tablero[i].simbolo == 'X'){ //Aqui busca al rey
+				if(piezaEnJaque(tablero, tablero.piezas_tablero[i])){
+					for (int x= -1; x <=1; ++x){
+						for(int y=-1; y<=1; ++y){
+							if (x != 0 || y != 0){
+								int a_x = tablero.piezas_tablero[i].x + x;
+								int a_y = tablero.piezas_tablero[i].y + y;
+								if (movimientoLegal(tablero, tablero.piezas_tablero[i], a_x, a_y)){
+									return false; // si retorna false, el rey tiene como minimo un movimiento legal por hacer
+				}
+			}
+		}
+	}
+	return false; // si no esta en jaque retorna false
 };
 
 
-bool movimientoLegal( Tablero &tablero, Pieza& pieza, int nueva_x, int nuevo_y){ //es para verificar si el movimiento es legal
+bool movimientoLegal( Tablero &tablero, Pieza& pieza, int a_x, int a_y){ //es para verificar si el movimiento es legal
 };
 
 
@@ -27,9 +43,9 @@ bool piezaEnJaque( Tablero &tablero, Pieza &pieza){ //es para verificar si la pi
         {
             if (tablero.piezas_tablero[i].x != pieza.x || tablero.piezas_tablero[i].y != pieza.y) // esta condicion se cumple si la pieza actual del
             { 
-                                                                                                     // tablero no tiene las mismas coordenadas que la pieza
-                                                                                                     // que se esta verificando y a su vez comprueba si la
-                                                                                                     // pieza puede atacar a la pieza dada
+                                                                                                                                       // tablero no tiene las mismas coordenadas que la pieza
+                                                                                                                                      // que se esta verificando y a su vez comprueba si la
+                                                                                                                                     // pieza puede atacar a la pieza dada
                 if (movimientoLegal(tablero, tablero.piezas_tablero[i], pieza.x, pieza.y)) {
                     return true; // retorna que la pieza esta en jaque
         }
