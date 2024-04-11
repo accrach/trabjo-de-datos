@@ -9,38 +9,86 @@ int x, y; // Su posición dentro del tablero [0, 7] x [0, 7]
 };
 
 struct Tablero {
-Pieza* piezas_tablero; // Lista de piezas que tiene el tablero
+int cantidad_de_piezas; // catidad de piezas.
+Pieza *piezas_tablero; // Lista de piezas que tiene el tablero
 };
 
-bool movimientoLegal( Tablero &tablero, Pieza &pieza, int a_x, int a_y) { //es para verificar si el movimiento es legal
-    if (a_x < 0 || a_x >=8 || a_y < 0 || a_y >= 8){
-        return false; //este condicional retorna falso si y solo si el movimiento esta fuera del rango del tablero
+bool movimientoLegal(Tablero& tablero, Pieza& pieza, int a_x, int a_y) {
+    if (a_x < 0 || a_x >= 8 || a_y < 0 || a_y >= 8) {
+        return false; // El movimiento está fuera del rango del tablero
     }
-    //¡¡¡PEON!!!
-    if(pieza.simbolo == 'P'){
-        if (a_x == pieza.x && a_y == pieza.y + 1){
-            return true; //retorna true si es que el peon avanza una casilla frente a el
+
+    // PEÓN
+    if (pieza.simbolo == 'P') {
+        // El peón puede avanzar una casilla hacia adelante si no hay ninguna pieza en esa posición
+        if (a_x == pieza.x && a_y == pieza.y + 1 && tablero.piezas_tablero[a_x + a_y * 8].simbolo == '.') {
+            return true;
         }
-        if ((a_x == pieza.x + 1 || a_x == pieza.x - 1) && a_y == pieza.y + 1){
-            return true;//retorna true si es que el peon se come a una pieza en diagonal
-        }
-    }
-    //¡¡¡REY!!!
-    if(pieza.simbolo == 'K'){
-        if((a_x == pieza.x + 1 || a_x == pieza.x -1) && (a_y == pieza.y + 1 || a_y == pieza.y - 1)){
-            return true;//retorna true si es que el rey se quiere avanzar o retroceder en diagonal
-        }
-        if(a_x == pieza.x && (a_y == pieza.y + 1 || a_y == pieza.y -1)){
-            return true;//retorna true si es que el rey quiere avanzar o retroceder en el eje y, siempre y cuando no se mueva en el eje x
-        }
-        if(a_y == pieza.y && (a_x == pieza.x + 1 || a_x == pieza.x -1)){
-            return true;//retorna true si es que el rey quiere avanzar o retroceder en el eje x, siempre y cuando no se mueva en el eje y
+        // El peón puede moverse diagonalmente para capturar una pieza enemiga
+        if ((a_x == pieza.x + 1 || a_x == pieza.x - 1) && a_y == pieza.y + 1 && tablero.piezas_tablero[a_x + a_y * 8].simbolo != '.') {
+            return true;
         }
     }
 
+    // TORRE
+    if (pieza.simbolo == 'T') {
+        // La torre puede moverse horizontal o verticalmente, pero no diagonalmente
+        if ((a_x == pieza.x || a_y == pieza.y) && a_x != pieza.x && a_y != pieza.y) {
+            return true;
+        }
+    }
 
-    return false;//el movimiento que se esta comprobando es invalido
-};
+    // CABALLO
+    if (pieza.simbolo == 'C') {
+        // El caballo se mueve en forma de "L", dos casillas en una dirección y una casilla en la dirección perpendicular
+        int dx = a_x - pieza.x;
+        int dy = a_y - pieza.y;
+        if ((dx == 2 || dx == -2) && (dy == 1 || dy == -1)) {
+            return true;
+        }
+        if ((dx == 1 || dx == -1) && (dy == 2 || dy == -2)) {
+            return true;
+        }
+    }
+
+    // ALFIL
+    if (pieza.simbolo == 'A') {
+        // El alfil se mueve en diagonal, por lo que el cambio en x debe ser igual al cambio en y
+        int dx = a_x - pieza.x;
+        int dy = a_y - pieza.y;
+        if (dx == dy || dx == -dy) {
+            return true;
+        }
+    }
+
+    // REINA
+    if (pieza.simbolo == 'R') {
+        // La reina puede moverse como una torre o un alfil
+        if ((a_x == pieza.x || a_y == pieza.y) && a_x != pieza.x && a_y != pieza.y) {
+            return true; // movimiento de torre
+        }
+        int dx = a_x - pieza.x;
+        int dy = a_y - pieza.y;
+        if (dx == dy || dx == -dy) {
+            return true; // movimiento de alfil
+        }
+    }
+
+    // REY Sebastian
+    if (pieza.simbolo == 'K') {
+        // El rey puede moverse una casilla en cualquier dirección
+        int dx = a_x - pieza.x;
+        int dy = a_y - pieza.y;
+        if ((dx == 1 || dx == -1) && (dy == 1 || dy == -1)) {
+            return true;
+        }
+        if ((dx == 0 || dy == 0) && (dx != 0 || dy != 0)) {
+            return true;
+        }
+    }
+
+    return false; // El movimiento es inválido para la pieza dada
+}
 
 
 bool piezaEnJaque( Tablero &tablero, Pieza &pieza){ //es para verificar si la pieza esta en jaque
@@ -88,8 +136,6 @@ bool tableroEnJaqueMate(Tablero &tablero){ //es para determinar si esta en jaque
         
 int main () {
 
-    int n = 0;
-
     ifstream Archivo; 
     Archivo.open("tablero.txt");
 
@@ -105,10 +151,9 @@ int main () {
 
         if (contador == 0){
 
-            n = stoi(linea);
-            mitablero.piezas_tablero = new Pieza[n];
+            mitablero.cantidad_de_piezas=stoi(linea);
+            mitablero.piezas_tablero = new Pieza[mitablero.cantidad_de_piezas];
             
-
         }
         else{
 
@@ -129,8 +174,20 @@ int main () {
         
         contador++;
     }
+    if (tableroEnJaqueMate(mitablero)){ //esto en simple pregunta si esta en jaquemate si esque da verdareo dira que si 
+
+        cout<<"SI";
+        
+    }
+
+    else{
+        cout<<"No";
+    }
+
     cout<<endl;
     Archivo.close();
+    delete[]mitablero.piezas_tablero;
+
     
     return 0;
 }
