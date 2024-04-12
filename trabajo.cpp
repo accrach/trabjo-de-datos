@@ -90,48 +90,45 @@ bool movimientoLegal(Tablero& tablero, Pieza& pieza, int a_x, int a_y) {
     return false; // El movimiento es inválido para la pieza dada
 }
 
-
-bool piezaEnJaque( Tablero &tablero, Pieza &pieza){ //es para verificar si la pieza esta en jaque
-    for (int i = 0; i < 8; ++i){ 
-        for (int j = 0; j < 8; ++j){
-            if (tablero.piezas_tablero[i].x != pieza.x || tablero.piezas_tablero[i].y != pieza.y){ // esta condicion se cumple si la pieza actual del
-                                                                                                  // tablero no tiene las mismas coordenadas que la pieza
-                                                                                                 // que se esta verificando y a su vez comprueba si la
-                                                                                                // pieza puede atacar a la pieza dada
-                if (movimientoLegal(tablero, tablero.piezas_tablero[i], pieza.x, pieza.y)) {
-                    return true; // retorna que la pieza esta en jaque
+bool reyEnJaque( Tablero &tablero){
+    for (int i = 0; i< tablero.cantidad_de_piezas; ++i){
+        if( tablero.piezas_tablero[i].simbolo == 'X'){ //busca al rey en el tablero
+            int reyX = tablero.piezas_tablero[i].x;
+            int reyY = tablero.piezas_tablero[i].y;
+            for( int j=0; j< tablero.cantidad_de_piezas; ++j){
+                if(tablero.piezas_tablero[j].simbolo != 'X' && movimientoLegal(tablero, tablero.piezas_tablero[j], reyX, reyY)){
+                    return true;//retorna true si es que una pieza puede atacar al rey
+                }
+            }
+            return false;//retorna false cuando ninguna pieza puede atacar al rey, por ende no hay jaque
         }
-      }
     }
-  }
-  return false; // retorna que la pieza no esta en jaque
+    return false;
 }
 
-
-
 bool tableroEnJaqueMate(Tablero &tablero){ //es para determinar si esta en jaque mate
-	for (int i=0; i<8; ++i){
-		for(int j=0; j<8; ++j){
-			if(tablero.piezas_tablero[i].simbolo == 'X'){ //Aqui busca al rey
-				if(piezaEnJaque(tablero, tablero.piezas_tablero[i])){
-					for (int x= -1; x <=1; ++x){
-						for(int y=-1; y<=1; ++y){
-							if (x != 0 || y != 0){
-								int a_x = tablero.piezas_tablero[i].x + x;
-								int a_y = tablero.piezas_tablero[i].y + y;
-								if (movimientoLegal(tablero, tablero.piezas_tablero[i], a_x, a_y)){
-									return false; // si retorna false, el rey tiene como minimo un movimiento legal por hacer
-                                }
+    if(reyEnJaque(tablero)){
+        for (int i=0; i<tablero.cantidad_de_piezas; ++i){//recorre todas las piezas del tablero
+            if( tablero.piezas_tablero[i].simbolo == 'X'){//busca al rey y verifica si tiene movimientos legales por hacer
+                for( int dx= -1; dx<=1; ++dx){
+                    for( int dy= -1; dy<=1; ++dy){
+                        if(dx != 0 || dy != 0){
+                            int a_x = tablero.piezas_tablero[i].x + dx;
+                            int a_y = tablero.piezas_tablero[i].y + dy;
+                            if( movimientoLegal(tablero, tablero.piezas_tablero[i], a_x, a_y)){
+                                return false;//si el rey tiene un movimiento legal, ya no esta en jaque
                             }
                         }
                     }
-                    return true; // El rey esta en jaque-mate
                 }
+                return true;//si el rey no puede hacer un movimento legal para salir del jaque, esta en mate
             }
         }
     }
-    return false; // si no esta en jaque retorna false
+    return false;// si el rey no esat en jaque, no pude estar en jaquemate
 }
+
+
 
         
 int main () {
