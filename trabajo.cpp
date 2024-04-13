@@ -106,28 +106,32 @@ bool reyEnJaque( Tablero &tablero){
     return false;
 }
 
-bool tableroEnJaqueMate(Tablero &tablero){ //es para determinar si esta en jaque mate
-    if(reyEnJaque(tablero)){
-        for (int i=0; i<tablero.cantidad_de_piezas; ++i){//recorre todas las piezas del tablero
-            if( tablero.piezas_tablero[i].simbolo == 'X'){//busca al rey y verifica si tiene movimientos legales por hacer
-                for( int dx= -1; dx<=1; ++dx){
-                    for( int dy= -1; dy<=1; ++dy){
-                        if(dx != 0 || dy != 0){
-                            int a_x = tablero.piezas_tablero[i].x + dx;
-                            int a_y = tablero.piezas_tablero[i].y + dy;
-                            if( movimientoLegal(tablero, tablero.piezas_tablero[i], a_x, a_y)){
-                                return false;//si el rey tiene un movimiento legal, ya no esta en jaque
-                            }
+bool tableroEnJaqueMate(Tablero& tablero) {
+    if (reyEnJaque(tablero)) {
+        for (int i = 0; i < tablero.cantidad_de_piezas; ++i) {
+            if (tablero.piezas_tablero[i].simbolo == 'X') {
+                int reyX = tablero.piezas_tablero[i].x;
+                int reyY = tablero.piezas_tablero[i].y;
+
+                // Verificar movimientos legales del rey
+                for (int dx = -1; dx <= 1; ++dx) {
+                    for (int dy = -1; dy <= 1; ++dy) {
+                        int a_x = reyX + dx;
+                        int a_y = reyY + dy;
+                        if (movimientoLegal(tablero, tablero.piezas_tablero[i], a_x, a_y)) {
+                            // El rey tiene al menos un movimiento legal disponible, por lo que no está en jaque mate
+                            return false;
                         }
                     }
                 }
-                return true;//si el rey no puede hacer un movimento legal para salir del jaque, esta en mate
+
+                // Si el rey no tiene movimientos legales disponibles, está en jaque mate
+                return true;
             }
         }
     }
-    return false;// si el rey no esat en jaque, no pude estar en jaquemate
+    return false; // Si el rey no está en jaque, no puede estar en jaque mate
 }
-
 
 
         
@@ -164,9 +168,6 @@ int main () {
         }
         num_linea++;
     }
-    
-    delete[] mitablero.piezas_tablero;
-
     
     if (tableroEnJaqueMate(mitablero)){ //esto en simple pregunta si esta en jaquemate si esque da verdareo dira que si 
 
