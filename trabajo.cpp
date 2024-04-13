@@ -133,44 +133,41 @@ bool tableroEnJaqueMate(Tablero &tablero){ //es para determinar si esta en jaque
         
 int main () {
 
-    ifstream Archivo; 
-    Archivo.open("tablero.txt");
+ Tablero mitablero;
+    ifstream archivo;
+    archivo.open("tablero.txt");
 
-    if (!Archivo.is_open()) {
-        cout << "Error al abrir el archivo" << endl;
-        return 1;
+    if (!archivo.is_open()) {
+        cerr << "Error al abrir el archivo" << endl;
+        return 1; // error
     }
 
     string linea;
-    int contador = 0;
-    Tablero mitablero;
-    while (getline(Archivo, linea)) {
+    int num_linea = 0;
+    int n = 0;
 
-        if (contador == 0){
-
-            mitablero.cantidad_de_piezas=stoi(linea);
+    while (getline(archivo, linea)) { // lee el archivo 
+        if (num_linea == 0) {        // condcion para que la primera linea leea la cantida de piezas
+            mitablero.cantidad_de_piezas = stoi(linea);
             mitablero.piezas_tablero = new Pieza[mitablero.cantidad_de_piezas];
-            
         }
-        else{
-
-            for (int i = 0; i < linea.length(); i++) {
-
+        else {
+            int longitud_linea = linea.length();
+            for (int i = 0; i < longitud_linea; i++) { //guarda la informacion de cada pieza
                 if (linea[i] != '.') {
-                cout << linea[i];
-                mitablero.piezas_tablero[contador-1].simbolo = linea[i];
-                mitablero.piezas_tablero[contador-1].x = i;
-                mitablero.piezas_tablero[contador-1].y = (contador - 1);
-
+                    mitablero.piezas_tablero[n].simbolo = linea[i];
+                    mitablero.piezas_tablero[n].x = num_linea - 1; // Fila
+                    mitablero.piezas_tablero[n].y = i; // Columna
+                    n++;
                 }
-
-           
             }
         }
-
-        
-        contador++;
+        num_linea++;
     }
+    
+    delete[] mitablero.piezas_tablero;
+
+    
     if (tableroEnJaqueMate(mitablero)){ //esto en simple pregunta si esta en jaquemate si esque da verdareo dira que si 
 
         cout<<"SI";
@@ -182,8 +179,8 @@ int main () {
     }
 
     cout<<endl;
-    Archivo.close();
-    delete[]mitablero.piezas_tablero;
+    archivo.close();
+    delete[] mitablero.piezas_tablero;
 
     
     return 0;
